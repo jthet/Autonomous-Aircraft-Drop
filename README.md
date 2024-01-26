@@ -14,11 +14,12 @@ Then use `git checkout <your-project-name>` to switch to the branch for your wor
 
 ``` sh
 jacksonthetford Autonomous-Aircraft-Drop $ git checkout image-recognition-main
-Already on 'image-recognition-main'
+Switched to branch 'image-recognition-main'
 Your branch is up to date with 'origin/image-recognition-main'.
 jacksonthetford Autonomous-Aircraft-Drop $ git branch
 * image-recognition-main
   main
   trajectory-main
 ```
+
 
