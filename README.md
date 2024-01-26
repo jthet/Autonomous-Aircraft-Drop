@@ -1,6 +1,12 @@
 # Autonomous-Aircraft-Drop
 
-### Code Instructions
+### Startup Instructions
+
+Create your own fork of this repository to do work on. 
+
+To add your work to this repository, create a PR from your fork's branch into the same branch on this repository
+
+#### Branch Instructions
 
 Use `git branch` to see what branch you are on:
 ```sh
