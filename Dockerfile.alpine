@@ -1,0 +1,18 @@
+FROM python:3.11-alpine as base
+
+LABEL maintainer="Jackson Thetford"
+
+# I found the alpine image size is ~60 mb and the slim is ~150, but more usability so we'll try slim
+
+RUN adduser -D Autonomous-Aircraft-Drop
+USER Autonomous-Aircraft-Drop
+
+WORKDIR /home/Autonomous-Aircraft-Drop
+
+# COPY requirements.txt ./
+
+# RUN pip install --no-cache-dir -r requirements.txt
+
+COPY image-recognition/ ./image-recognition
+
+COPY trajectory/ ./trajectory
