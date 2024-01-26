@@ -1,12 +1,12 @@
 # Autonomous-Aircraft-Drop
 
-### Startup Instructions
+## Startup Instructions
 
 Create your own fork of this repository to do work on. 
 
 To add your work to this repository, create a PR from your fork's branch into the same branch on this repository.
 
-#### Branch Instructions
+### Branch Instructions
 
 Use `git branch` to see what branch you are on:
 ```sh
@@ -26,6 +26,16 @@ jacksonthetford Autonomous-Aircraft-Drop $ git branch
 * image-recognition-main
   main
   trajectory-main
+```
+
+### Docker Instructions
+
+Run the following:
+
+```
+$ docker run -d --rm --name app --entrypoint=sleep jthet/autonomous-aircraft-drop infinity
+...
+$ docker exec -it app bash
 ```
 
 
