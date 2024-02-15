@@ -28,6 +28,11 @@ jacksonthetford Autonomous-Aircraft-Drop $ git branch
   trajectory-main
 ```
 
+If you don't have a branch locally that matches a remote branch do the following:
+
+`git checkout -b <name-of-branch> origin/<name-of-branch>`
+
+
 ### Docker Instructions
 
 Run the following:
