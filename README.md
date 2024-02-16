@@ -81,7 +81,9 @@ to lint all files
 
 1. **Install `pytest`** (if not already installed):
 
-```pip install pytest```
+```
+pip install pytest
+```
 
 2. **Run Tests with `pytest`**:
 In the root directory of the project, execute:
