@@ -72,6 +72,15 @@ pylint $(git ls-files '*.py')
 ```
 to lint all files
 
+**Note**: To automatically fix the linting in files you can run (use with caution):
+
+```
+$ pip install autopep8
+...
+$ find . -type f -name "*.py" -exec autopep8 --in-place --aggressive --aggressive {} +
+```
+
+
 **Note**: you can get around the linting by putting something similar to `# pylint: disable=wrong-import-position` in the line above the line causing the renting error. 
 
 
