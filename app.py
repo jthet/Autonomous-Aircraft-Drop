@@ -1,5 +1,5 @@
-# Currently this is just a test to keep workflows happy
 # app.py
+"""Module for basic arithmetic operations."""
 
 def add_numbers(a, b):
     """Add two numbers together."""
@@ -7,4 +7,3 @@ def add_numbers(a, b):
 
 if __name__ == "__main__":
     print(add_numbers(3, 4))
-
