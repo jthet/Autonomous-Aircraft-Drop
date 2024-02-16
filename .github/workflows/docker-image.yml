@@ -27,5 +27,5 @@ jobs:
         context: .
         file: ./Dockerfile
         push: true
-        tags: jthet/Autonomous-Aircraft-Drop:${{ github.sha }}
+        tags: jthet/autonomous-aircraft-drop:${{ github.sha }}
 
