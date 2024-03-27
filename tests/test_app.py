@@ -1,8 +1,6 @@
 # tests/test_app.py
 """Tests for the arithmetic operations in app module."""
 
-
-from app import add_numbers
 import sys
 from pathlib import Path
 
@@ -10,6 +8,7 @@ from pathlib import Path
 # pylint: disable=wrong-import-position
 sys.path.append(str(Path(__file__).parent.parent))
 
+from app import add_numbers
 
 def test_add_numbers():
     """Test that add_numbers correctly adds two numbers."""
