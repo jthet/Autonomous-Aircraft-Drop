@@ -8,7 +8,7 @@ bearing = 0  # deg (0 - N, 90 - E, 180 - S, 270 - W)
 vertical_speed = 2  # m/s
 aircraft_velocity = Vector3(air_speed*sin(radians(bearing)), air_speed*cos(radians(bearing)), vertical_speed)
 
-altitude = 150/3.28084  # m
+altitude = 150/3.28084  # ft
 
 wind_speed = 0
 wind_direction = 180 
@@ -16,10 +16,10 @@ wind_velocity = Vector3(wind_speed*sin(radians(wind_direction)), wind_speed*cos(
 
 payload_velocity = aircraft_velocity + wind_velocity
 
-g = 9.81  # m/s^2
+g = -9.81  # m/s^2
 
-t = sqrt(altitude*2/g)
-displacement = Vector3(payload_velocity.x*t*3.28084, payload_velocity.y*t*3.28084, -150)  # ft
+t = (-vertical_speed - sqrt(vertical_speed**2 - 4*altitude*g/2))/g
+displacement = Vector3(payload_velocity.x*t*3.28084, payload_velocity.y*t*3.28084, -150)  # Standardized to feet
 
 drop_coordinate = target_coordinate - displacement
 
