@@ -9,7 +9,7 @@ class Vector3:
         self.z = z
 
     def __repr__(self):
-        return 'Vector3(%.3f, %.3f, %.3f)' % (self.x, self.y, self.z)
+        return '<%.3f, %.3f, %.3f>' % (self.x, self.y, self.z)
 
     def magnitude(self):
         return (self.x**2 + self.y**2 + self.z**2)**0.5
