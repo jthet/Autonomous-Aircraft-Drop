@@ -27,7 +27,7 @@ jobs:
         context: .
         file: ./Dockerfile
         push: true
-        tags: jthet/autonomous-aircraft-drop:${{ github.sha }}
+        tags: jthet/autonomous-aircraft-drop:github
         platforms: linux/amd64,linux/arm64,
         cache-from: type=registry,ref=jthet/autonomous-aircraft-drop:cache
         cache-to: type=inline,mode=max
