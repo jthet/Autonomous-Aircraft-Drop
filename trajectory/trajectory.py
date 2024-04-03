@@ -1,5 +1,9 @@
 from util import Vector3
-from math import sin, cos, radians, sqrt
+from math import sin, cos, radians, sqrt, log
+
+def wind_gradient(v1, z1, z2, alpha);
+  v2 = v1*(z2/z1)**alpha
+  return v2
 
 target_coordinate = Vector3(0, 0, 0)
 
@@ -8,17 +12,24 @@ bearing = 0  # deg (0 - N, 90 - E, 180 - S, 270 - W)
 vertical_speed = 2  # m/s
 aircraft_velocity = Vector3(air_speed*sin(radians(bearing)), air_speed*cos(radians(bearing)), vertical_speed)
 
-altitude = 150/3.28084  # m
+altitude = 150  # ft
 
 wind_speed = 0
 wind_direction = 180 
 wind_velocity = Vector3(wind_speed*sin(radians(wind_direction)), wind_speed*cos(radians(wind_direction)), 0)
 
-payload_velocity = aircraft_velocity + wind_velocity
+payload_velocity = aircraft_velocity
 
 g = -9.81  # m/s^2
 
-t = (-vertical_speed - sqrt(vertical_speed**2 - 4*altitude*g/2))/g
+ground_speed = 0
+ground_direction = 180
+ground_altitude = 3  # m
+
+alpha_x = (log(wind_speed*cos(radians(wind_direction))) - log(ground_speed*cos(radians(ground_direction))))/(log(altitude) - log(ground_altitude))
+alpha_y = (log(wind_speed*sin(radians(wind_direction))) - log(ground_speed*sin(radians(ground_direction))))/(log(altitude) - log(ground_altitude))
+
+t = (-vertical_speed - sqrt(vertical_speed**2 - 4*altitude/3.28084*g/2))/g
 displacement = Vector3(payload_velocity.x*t*3.28084, payload_velocity.y*t*3.28084, -150)  # Standardized to ft
 
 drop_coordinate = target_coordinate - displacement
