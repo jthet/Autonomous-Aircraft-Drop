@@ -1,13 +1,27 @@
 from util import Vector3
 from math import sin, cos, radians, sqrt, log
 
-def wind_gradient(v1, z1, z2, alpha);
+def wind_gradient(v1, z1, z2, alpha):
   v2 = v1*(z2/z1)**alpha
   return v2
 
+def extract_param(parameter_name):
+  file_name = 'mav.parm'
+  parameter_value = None
+  with open(file_name, 'r') as file:
+    for line in file:
+      parts = line.split()
+      if len(parts) > 1 and parts[0] == parameter_name:
+        parameter_value = parts[1]
+        break
+  return parameter_value
+
 target_coordinate = Vector3(0, 0, 0)
+# target_coordinate = Vector3(extract_param('GPS_POS1_X'), extract_param('GPS_POS1_Y'), extract_param('GPS_POS1_Z'))
 
 air_speed = 20  # m/s
+# air_speed = extract_param('TRIM_ARSPD_CM')
+
 bearing = 0  # deg (0 - N, 90 - E, 180 - S, 270 - W)
 vertical_speed = 2  # m/s
 aircraft_velocity = Vector3(air_speed*sin(radians(bearing)), air_speed*cos(radians(bearing)), vertical_speed)
