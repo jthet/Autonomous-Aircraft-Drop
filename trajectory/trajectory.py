@@ -1,9 +1,16 @@
 from util import Vector3
 from math import sin, cos, radians, sqrt, log
+from pymavlink import mavutil, mavwp
 
-def wind_gradient(v1, z1, z2, alpha):
-  v2 = v1*(z2/z1)**alpha
-  return v2
+def wind_gradient(ground_speed, ground_altitude, altitude, alpha):
+  '''
+  Calculate wind speed at an altitude.
+
+  Returns:
+    Wind speed at altitude.
+  '''
+  wind_speed = ground_speed*(altitude/ground_altitude)**alpha
+  return wind_speed
 
 def extract_param(parameter_name):
   file_name = 'mav.parm'
@@ -15,7 +22,6 @@ def extract_param(parameter_name):
         parameter_value = parts[1]
         break
   return parameter_value
-
 
 # initial conditions
 
