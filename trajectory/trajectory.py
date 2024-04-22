@@ -2,11 +2,17 @@ from util import Vector3
 from math import sin, cos, radians, sqrt, log
 import matplotlib.pyplot as plt
 
-def wind_gradient(v1, z1, z2, alpha):
-    v2 = v1*(z2/z1)**alpha
-    return v2
+def wind_gradient(ground_speed, ground_altitude, altitude, alpha):
+    '''
+    Calculate wind speed at an altitude.
+    '''
+    wind_speed = ground_speed*(altitude/ground_altitude)**alpha
+    return wind_speed
 
 def trapezoidal(x, y):
+    '''
+    Estimates integral using trapezoidal method.
+    '''
     area = 0
     for i in range(len(x) - 1):
         base = x[i + 1] - x[i]
