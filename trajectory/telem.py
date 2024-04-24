@@ -1,5 +1,8 @@
+from pymavlink from mavwp, mavutil
+
 # Connect to the Pixhawk
 master = mavutil.mavlink_connection(connection_string, baud=baudrate)
+wp = mavwp.MAVWPLoader()
 
 #*******Tested and Working*******  
 def altitude_handle(phase):
@@ -24,10 +27,18 @@ def send_GLOBAL_POSITION_INT(lat, lon, alt):
     '''
     sends gps coordinates back to pixhawk
     '''
+    # send message
     master.mav.mission_item_send(
         master.target_system, master.target_component, 0, mavutil.mavlink.MAV_FRAME_GLOBAL_RELATIVE_ALT,
         mavutil.mavlink.MAV_CMD_NAV_WAYPOINT, 0, 0, 0, 0, 0,
         lat, lon, alt)
+
+    # send waypoints
+    # msg = master.mav.mission_item_message(
+    #     master.target_system, master.target_component, 0, mavutil.mavlink.MAV_FRAME_GLOBAL_RELATIVE_ALT,
+    #     mavutil.mavlink.MAV_CMD_NAV_WAYPOINT, 0, 0, 0, 0, 0,
+    #     lat, lon, alt)
+    # master.mav.send(msg)
 
 def receive_WIND():
     msg = master.recv_match(type=['WIND'], blocking=True)
@@ -51,6 +62,8 @@ def main():
             row = [pos.lat, pos.lon, pos.alt, pos.vx, pos.vy, pos.vz, wind.speed, wind.direction]  # Create row of data
             writer.writerow(row)  # Write row to CSV file
         time.sleep(5)
+
+    send_GLOBAL_POSITION_INT(0, 1, 1)
 
 if __name__ == "__main__":
     main()
