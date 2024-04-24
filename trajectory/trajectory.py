@@ -5,6 +5,14 @@ from util import Vector3
 def get_variables():
     '''
     Retrieves variables from flight_data.csv
+
+    Returns:
+        air_speed (m/s)
+        bearing (degrees)
+        vertical_speed (m/s)
+        altitude (m)
+        wind_speed (m/s)
+        wind_direction (degrees)
     '''
     vars = pd.read_csv('flight_data.csv')
 
@@ -52,24 +60,29 @@ def calculate_drop_coordinates(air_speed, bearing, vertical_speed, altitude, win
 
     ### FEED SEPARATELY
     ground_speed = 1
-    ground_direction = 0
-    ground_altitude = 0.000001  # m
+    ground_direction = wind_direction
+    ground_altitude = altitude - 150  # m
 
-    alpha = (log(abs(wind_velocity.y)) - log(abs(ground_speed*cos(radians(ground_direction)))))/(log(altitude) - log(ground_altitude))  # shear coeff for wind in y
+    alpha_x = (log(abs(wind_velocity.x)) - log(abs(ground_speed*sin(radians(ground_direction)))))/(log(altitude) - log(ground_altitude))  # shear coeff for wind in x
+    alpha_y = (log(abs(wind_velocity.y)) - log(abs(ground_speed*cos(radians(ground_direction)))))/(log(altitude) - log(ground_altitude))  # shear coeff for wind in y
+    print(alpha_x, alpha_y)
 
     time = (-vertical_speed - sqrt(vertical_speed**2 - 4*altitude/3.28084*g/2))/g  # time for payload to hit ground
-    displacement = Vector3(payload_velocity.x*time*3.28084, payload_velocity.y*time*3.28084, -150)  # Standardized to ft
+    displacement = Vector3(payload_velocity.x*time*3.28084, payload_velocity.y*time*3.28084, -altitude)  # Standardized to ft
 
     times = []
-    wind_speeds = []
+    wind_speeds_x = []
+    wind_speeds_y = []
     for z in range(150, 0, -10):
         times.append((-vertical_speed - sqrt(vertical_speed**2 - 4*(altitude - z)/3.28084*g/2))/g)
-        wind_speeds.append(wind_gradient(ground_speed*cos(radians(ground_direction)), ground_altitude, z, alpha))
+        wind_speeds_x.append(wind_gradient(ground_speed*sin(radians(ground_direction)), ground_altitude, z, alpha_x))
+        wind_speeds_y.append(wind_gradient(ground_speed*cos(radians(ground_direction)), ground_altitude, z, alpha_y))
 
     drop_coordinates = target_coordinates - displacement
-    drop_coordinates.y -= trapezoidal(times, wind_speeds)*cos(wind_direction)
+    drop_coordinates.x -= trapezoidal(times, wind_speeds_x)*sin(wind_direction)
+    drop_coordinates.y -= trapezoidal(times, wind_speeds_y)*cos(wind_direction)
 
-    return drop_coordinates
+    return drop_coordinates  # In ft
 
 def main():
     air_speed, bearing, vertical_speed, altitude, wind_speed, wind_direction = get_variables()
