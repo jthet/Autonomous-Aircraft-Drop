@@ -17,6 +17,12 @@ def receive_GLOBAL_POSITION_INT():
     if msg:
         return msg
 
+def send_GLOBAL_POSITION_INT(lat, lon, alt):
+    master.mav.mission_item_send(
+        master.target_system, master.target_component, 0, mavutil.mavlink.MAV_FRAME_GLOBAL_RELATIVE_ALT,
+        mavutil.mavlink.MAV_CMD_NAV_WAYPOINT, 0, 0, 0, 0, 0,
+        lat, lon, alt)
+
 def receive_WIND():
     msg = master.recv_match(type=['WIND'], blocking=True)
     if msg:
