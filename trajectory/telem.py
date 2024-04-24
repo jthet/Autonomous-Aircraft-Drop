@@ -13,11 +13,17 @@ def altitude_handle(phase):
         return 45.72
       
 def receive_GLOBAL_POSITION_INT():
+    '''
+    receives data from the pixhawk
+    '''
     msg = master.recv_match(type=['GLOBAL_POSITION_INT'], blocking=True)
     if msg:
         return msg
 
 def send_GLOBAL_POSITION_INT(lat, lon, alt):
+    '''
+    sends gps coordinates back to pixhawk
+    '''
     master.mav.mission_item_send(
         master.target_system, master.target_component, 0, mavutil.mavlink.MAV_FRAME_GLOBAL_RELATIVE_ALT,
         mavutil.mavlink.MAV_CMD_NAV_WAYPOINT, 0, 0, 0, 0, 0,

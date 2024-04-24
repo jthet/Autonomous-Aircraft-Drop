@@ -17,6 +17,9 @@ def get_variables():
     if bearing < 0:
         bearing += 360
 
+    arca_alt = 182.88  # m
+    alt = alt - arca_alt
+
     return air_speed, bearing, v_z, alt, wind_speed, wind_direction
 
 def wind_gradient(v1, z1, z2, alpha):
