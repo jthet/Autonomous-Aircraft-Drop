@@ -1,10 +1,9 @@
-FROM ubuntu:20.04
+FROM nvidia/cuda:11.8.0-base-ubuntu20.04
 
 LABEL maintainer="Jackson Thetford"
 
 ARG DEBIAN_FRONTEND=noninteractive
 
-# install dependencies
 RUN apt-get update && apt-get install -y \
     software-properties-common \
     wget \
@@ -20,12 +19,12 @@ RUN apt-get update && apt-get install -y \
     patchelf \
     && rm -rf /var/lib/apt/lists/*
 
-# dependencies for other packages liek numpy, not sure what we need but these should be useful
 RUN apt-get update && apt-get install -y \
     g++ \
     make \
     ninja-build \ 
     && rm -rf /var/lib/apt/lists/*
+
 
 # python 3
 RUN add-apt-repository ppa:deadsnakes/ppa
@@ -64,26 +63,10 @@ RUN pip3 install --no-cache-dir ultralytics opencv-python pillow
 RUN gdown https://drive.google.com/uc?id=1hs9HM0XJ2LPFghcn7ZMOs5qu5HexPXwM \
     && gdown https://drive.google.com/uc?id=1m0d8ruUY8RvCP9eVjZw4Nc8LAwM8yuGV
 
+RUN apt-get install libcap-dev 
+RUN pip3 install picamera2
+RUN apt-get install libcamera*
+# putting this down here bc wanna keep cache.
 
 
-# Could set as the default command when wanting to run the 
-# CMD ["python3", "detect.py", "--weights", "best.pt", "--img", "640", "--conf", "0.25", "--source", "flyoverframeslow"]
-
-
-# BUILD:
-# docker buildx build --platform linux/arm64/v8,linux/amd64 --tag jthet/autonomous-aircraft-drop:ml-dev -f ./Dockerfile.imageML .
-
-
-# if need to install cuda drivers:
-
-# Set up the NVIDIA repository and GPG key
-# RUN wget https://developer.download.nvidia.com/compute/cuda/repos/ubuntu2004/arm64/cuda-keyring.gpg
-# RUN mv cuda-keyring.gpg /usr/share/keyrings/
-# RUN echo "deb [signed-by=/usr/share/keyrings/cuda-keyring.gpg] https://developer.download.nvidia.com/compute/cuda/repos/ubuntu2004/arm64/ /" | tee /etc/apt/sources.list.d/cuda.list
-
-# # Install CUDA Toolkit version 11.8
-# RUN apt-get update && apt-get install -y cuda-toolkit-11-8
-
-# # Set CUDA paths (may vary based on the CUDA version installed)
-# ENV PATH=/usr/local/cuda-11.8/bin:${PATH}
-# ENV LD_LIBRARY_PATH=/usr/local/cuda-11.8/lib64:${LD_LIBRARY_PATH}
+# docker buildx build --platform linux/arm64/v8 --tag jthet/autonomous-aircraft-drop:ml-dev .
