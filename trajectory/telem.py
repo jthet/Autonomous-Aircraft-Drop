@@ -1,27 +1,44 @@
-from pymavlink import mavutil, mavwp
+# Connect to the Pixhawk
+master = mavutil.mavlink_connection(connection_string, baud=baudrate)
 
-# Set the connection parameters
-connection_string = '/dev/ttyUSB0'
-
-# Connect to Pixhawk
-master = mavutil.mavlink_connection(connection_string)
-
-# Receive telemetry data from pixhawk to jetson
-def receive_telem():
+#*******Tested and Working*******  
+def altitude_handle(phase):
     '''
-    Receive telemetry data from pixhawk to jetson.
+    handles the altitude inputs to the plane
     '''
-    # Get gps coordinates
-    params = master.recv_match(type=['GLOBAL_POSITION_INT'],blocking=True)             
-    if params:
-        print("Global Position: Lat={}, Lon={}, Alt={}".format(params.lat, params.lon, params.alt))      
-        return params
+    #Altitudes are in meters
+    if phase == 'search':
+        return 91.44
+    if phase == 'surveillance':
+        return 45.72
+      
+def receive_GLOBAL_POSITION_INT():
+    msg = master.recv_match(type=['GLOBAL_POSITION_INT'], blocking=True)
+    if msg:
+        return msg
+
+def receive_WIND():
+    msg = master.recv_match(type=['WIND'], blocking=True)
+    if msg:
+        return msg
 
 def main():
-    '''
-    Main function.
-    '''
-    receive_telem()
+    # Define the filename
+    filename = 'flight_data.csv'
+
+    with open(filename, 'a', newline='') as f:
+        writer = csv.writer(f)
+        writer.writerow(["lat", "lon", "alt", "v_x", "v_y", "v_z", "wind_speed", "wind_direction"])  # Write header
+
+    while True:
+        with open(filename, 'a', newline='') as f:
+            writer = csv.writer(f)
+
+            pos = receive_GLOBAL_POSITION_INT()
+            wind = receive_WIND()
+            row = [pos.lat, pos.lon, pos.alt, pos.vx, pos.vy, pos.vz, wind.speed, wind.direction]  # Create row of data
+            writer.writerow(row)  # Write row to CSV file
+        time.sleep(5)
 
 if __name__ == "__main__":
     main()
