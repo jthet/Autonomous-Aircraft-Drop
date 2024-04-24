@@ -63,5 +63,7 @@ def main():
             writer.writerow(row)  # Write row to CSV file
         time.sleep(5)
 
+    send_GLOBAL_POSITION_INT(0, 1, 1)
+
 if __name__ == "__main__":
     main()
