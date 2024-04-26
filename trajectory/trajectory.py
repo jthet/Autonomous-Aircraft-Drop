@@ -50,11 +50,11 @@ def trapezoidal(x, y):
         
     return area
 
-def calculate_drop_coordinates(air_speed, bearing, vertical_speed, altitude, wind_speed, wind_direction):
+def calculate_drop_coordinates(air_speed, bearing, vertical_speed, altitude, wind_speed, wind_direction, target_lat, target_lon):
     '''
     Calculates drop coordinates using variables extracted from Pixhawk and kinematics
     '''
-    target_coordinates = Vector3(0, 0, 0)
+    target_coordinates = Vector3(target_lat, target_lon, 45.72)
 
     payload_velocity = Vector3(air_speed*sin(radians(bearing)), air_speed*cos(radians(bearing)), vertical_speed)
     wind_velocity = Vector3(wind_speed*sin(radians(wind_direction)), wind_speed*cos(radians(wind_direction)), 0)
@@ -64,7 +64,7 @@ def calculate_drop_coordinates(air_speed, bearing, vertical_speed, altitude, win
     ### FEED SEPARATELY
     ground_speed = 1
     ground_direction = wind_direction
-    ground_altitude = altitude - 150  # m
+    ground_altitude = 10  # m
 
     alpha_x = (log(abs(wind_velocity.x)) - log(abs(ground_speed*sin(radians(ground_direction)))))/(log(altitude) - log(ground_altitude))  # shear coeff for wind in x
     alpha_y = (log(abs(wind_velocity.y)) - log(abs(ground_speed*cos(radians(ground_direction)))))/(log(altitude) - log(ground_altitude))  # shear coeff for wind in y
@@ -85,11 +85,12 @@ def calculate_drop_coordinates(air_speed, bearing, vertical_speed, altitude, win
     drop_coordinates.x -= trapezoidal(times, wind_speeds_x)*sin(wind_direction)
     drop_coordinates.y -= trapezoidal(times, wind_speeds_y)*cos(wind_direction)
 
-    return drop_coordinates  # In ft
+    # return drop_coordinates  # In ft
+    return drop_coordinates.x, drop_coordinates.y
 
-def main():
+def main(target_lat, target_lon):
     air_speed, bearing, vertical_speed, altitude, wind_speed, wind_direction = get_variables()
-    print(calculate_drop_coordinates(air_speed, bearing, vertical_speed, altitude, wind_speed, wind_direction))
+    print(calculate_drop_coordinates(air_speed, bearing, vertical_speed, altitude, wind_speed, wind_direction, target_lat, target_lon))
 
 if __name__ == "__main__":
     main()
