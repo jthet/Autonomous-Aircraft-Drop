@@ -1,6 +1,7 @@
 from pymavlink import mavutil
 
 # Connect to the Pixhawk
+connection_string = '/dev/ttyUSB0'
 master = mavutil.mavlink_connection(connection_string, baud=baudrate)
 
 #*******Tested and Working*******       
