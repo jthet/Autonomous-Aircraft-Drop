@@ -1,5 +1,6 @@
 import csv
 from math import sqrt, log, sin, cos, asin, acos, atan, degrees, radians
+from time import sleep
 import pandas as pd
 from pymavlink import mavutil, mavwp
 
@@ -17,32 +18,15 @@ class Vector3:
     def __repr__(self):
         return '<%.9f, %.9f, %.3f>' % (self.x, self.y, self.z)
 
-    def magnitude(self):
-        return (self.x**2 + self.y**2 + self.z**2)**0.5
-
-    def unit(self):
-        mag = self.magnitude()
-        return Vector3(self.x/mag, self.y/mag, self.z/mag)
-
     def __add__(self, other):
         return Vector3(self.x + other.x, self.y + other.y, self.z + other.z)
 
     def __sub__(self, other):
         return Vector3(self.x - other.x, self.y - other.y, self.z - other.z)
 
-    def dot(self, other):
-        return self.x*other.x + self.y*other.y + self.z*other.z
-
-    def angle(self, other):
-        m = self.unit()
-        n = other.unit()
-        r = m.dot(n)
-
-        return degrees(acos(r))
-
 def receive_GLOBAL_POSITION_INT():
     '''
-    receives data from the pixhawk
+    Receives data from the Pixhawk
     '''
     msg = master.recv_match(type=['GLOBAL_POSITION_INT'], blocking=True)
     if msg:
@@ -55,7 +39,7 @@ def receive_WIND():
 
 def send_GLOBAL_POSITION_INT(waypoints):
     '''
-    sends gps coordinates back to pixhawk
+    Sends GPS coordinates back to pixhawk
     '''
     wp = mavwp.MAVWPLoader()   
     altitude = 45.72                                                 
@@ -80,6 +64,23 @@ def send_GLOBAL_POSITION_INT(waypoints):
         msg = master.recv_match(type=['MISSION_REQUEST'],blocking=True)             
         master.mav.send(wp.wp(msg.seq))                                                                      
         print(f'Sending waypoint {msg.seq}')
+
+def calculate_upwind_coordinates(distance, target_lat, target_lon):
+    '''
+    Calculate upwind coordinate
+    '''
+
+    wind_direction = get_variables()[7]
+
+    if wind_direction < 0:
+        wind_direction = wind_direction + 360
+
+    x_disp = distance*cos(radians(wind_direction))*(-1)
+    y_disp = distance*sin(radians(wind_direction))*(-1)
+    lat = target_lat + x_disp*(1/111320)
+    lon = target_lon + y_disp*(1/111320)
+
+    return lat, lon
 
 def get_variables():
     '''
@@ -143,6 +144,8 @@ def calculate_drop_coordinates(target_latitude, target_longitude, latitude, air_
     '''
     target_coordinates = Vector3(target_longitude, target_latitude, 0)
 
+    longitude, latitude, air_speed, bearing, vertical_speed, altitude, wind_speed, wind_direction = get_variables()
+
     payload_velocity = Vector3(air_speed*sin(radians(bearing)), air_speed*cos(radians(bearing)), vertical_speed)
     wind_velocity = Vector3(wind_speed*sin(radians(wind_direction)), wind_speed*cos(radians(wind_direction)), 0)
 
@@ -175,35 +178,41 @@ def calculate_drop_coordinates(target_latitude, target_longitude, latitude, air_
 
     drop_coordinates = target_coordinates - displacement
 
-    send_GLOBAL_POSITION_INT((drop_coordinates.x, drop_coordinates.y))
+    send_GLOBAL_POSITION_INT([{'lat': drop_coordinates.x, 'lon': drop_coordinates.y}])
 
     return drop_coordinates  # degrees
 
-def check_drop(lat1, lon1, lat2, lon2):
+def check_coordinates(lat1, lon1):
     '''
     Calculate the great circle distance between two points on the earth (specified in decimal degrees) in feet.
     '''
 
-    # Convert decimal degrees to radians
-    lat1, lon1, lat2, lon2 = map(radians, [lat1, lon1, lat2, lon2])
-
-    # Haversine formula
-    dlat = lat2 - lat1
-    dlon = lon2 - lon1
-    a = sin(dlat/2)**2 + cos(lat1)*cos(lat2)*sin(dlon/2)**2
-    c = 2*asin(sqrt(a))
-
-    # Radius of Earth in feet
-    r = 20902000
-
-    if abs(c*r) < 15:
-        pass
-
-def main(target_latitude, target_longitude):
     while True:
-        longitude, latitude, air_speed, bearing, vertical_speed, altitude, wind_speed, wind_direction = get_variables()
-        drop_coordinates = calculate_drop_coordinates(target_latitude, target_longitude, latitude, air_speed, bearing, vertical_speed, altitude, wind_speed, wind_direction)
-        check_drop(drop_coordinates.x, drop_coordinates.y, latitude, longitude)
+        lon2, lat2 = get_variables()[0], get_variables()[1]
+
+        # Convert decimal degrees to radians
+        lat1, lon1, lat2, lon2 = map(radians, [lat1, lon1, lat2, lon2])
+
+        # Haversine formula
+        dlat = lat2 - lat1
+        dlon = lon2 - lon1
+        a = sin(dlat/2)**2 + cos(lat1)*cos(lat2)*sin(dlon/2)**2
+        c = 2*asin(sqrt(a))
+
+        # Radius of Earth in feet
+        r = 20902000
+
+        if abs(c*r) < 15:
+            return True
+
+        sleep(1)
+            
+def main(target_latitude, target_longitude):
+    upwind_latitude, upwind_longitude = calculate_upwind_coordinates(91.44, target_latitude, target_longitude)
+    if check_coordinates(upwind_latitude, upwind_longitude):
+        drop_coordinates = calculate_drop_coordinates(target_latitude, target_longitude)
+    if check_coordinates(drop_coordinates.x, drop_coordinates.y):
+        pass # trigger drop
 
 if __name__ == '__main__':
     main()
