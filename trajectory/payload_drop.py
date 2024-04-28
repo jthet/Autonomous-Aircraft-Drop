@@ -16,7 +16,7 @@ class Vector3:
         self.z = z
 
     def __repr__(self):
-        return '<%.9f, %.9f, %.3f>' % (self.x, self.y, self.z)
+        return '<%.8f, %.8f, %.3f>' % (self.x, self.y, self.z)
 
     def __add__(self, other):
         return Vector3(self.x + other.x, self.y + other.y, self.z + other.z)
